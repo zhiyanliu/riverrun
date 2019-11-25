@@ -4,14 +4,14 @@ import multiprocessing.queues
 import base_server
 
 
-class RTPPacketLogServer(base_server.Server):
-    def __init__(self, name, stat_queue, rtp_pkt_queue, decoder_class, source_id):
-        super(RTPPacketLogServer, self).__init__(name, stat_queue)
-        if rtp_pkt_queue is None:
-            raise Exception("RTP packet queue is None")
+class LoggingServer(base_server.Server):
+    def __init__(self, name, stat_queue, sync_pkt_queue, decoder_class, source_id):
+        super(LoggingServer, self).__init__(name, stat_queue)
+        if sync_pkt_queue is None:
+            raise Exception("synchronized packet queue is None")
         if decoder_class is None:
             raise Exception("RTP packet decoder class is None")
-        self._rtp_pkt_in_queue = rtp_pkt_queue
+        self._sync_pkt_queue = sync_pkt_queue
         self._source_id = source_id
         self._decoder = decoder_class(self._source_id)
         # logging indicator
@@ -41,7 +41,7 @@ class RTPPacketLogServer(base_server.Server):
                 while not self._stop_flag.is_set():
                     self._latest_received_meta_frame,\
                         self._latest_received_rtp_timestamp,\
-                        self._latest_received_rtp_pkt = self._rtp_pkt_in_queue.get(timeout=1)
+                        self._latest_received_rtp_pkt = self._sync_pkt_queue.get(timeout=1)
                     self._received_sync_pkt_count += 1
 
                     self._decoder.put(self._latest_received_rtp_pkt)
@@ -51,7 +51,7 @@ class RTPPacketLogServer(base_server.Server):
                 pass  # timeout just for server stop checking, ignore safely
 
     def release(self):
-        super(RTPPacketLogServer, self).release()
+        super(LoggingServer, self).release()
         if self._decoder is None:
             return  # to prevent re-entry
 

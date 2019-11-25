@@ -118,7 +118,7 @@ class SyncPacketNoneSender:
         print("synchronized packet packet NONE sender released, pid = %d" % os.getpid())
 
 
-_empty_meta_frame_buff = b''
+_empty_meta_frame_buff = b""
 
 
 class SyncPacketCombiner:

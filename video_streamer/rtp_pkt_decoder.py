@@ -11,11 +11,11 @@ import rtp_pkt as rtp_packet
 class RTPPacketSimpleDecoder:
     def __init__(self, source_id):
         self._source_id = source_id
-        self._nal_unit_buff = b''
+        self._nal_unit_buff = b""
         self._nal_unit_type = None
         self._nal_unit_complete = None
-        self._nal_packer = bitstruct.compile('u1u2u5')
-        self._nal_stream_packer = bitstruct.compile('u24')
+        self._nal_packer = bitstruct.compile("u1u2u5")
+        self._nal_stream_packer = bitstruct.compile("u24")
         # log latest RTP timestamp
         self._latest_rtp_timestamp = None
         # log frame statistics
@@ -38,7 +38,7 @@ class RTPPacketSimpleDecoder:
         # log frame statistics
         print("the number of received I frame from the source #%d in last 5 seconds: %d" %
               (self._source_id, self._received_i_frame_count))
-        print("the number of received slice (P and B frame) from the source #%d in last 5 seconds: %d" %
+        print("the number of received slice (include P and B frame) from the source #%d in last 5 seconds: %d" %
               (self._source_id, self._received_slice_count))
         print("the number of received SPS from the source #%d in last 5 seconds: %d" %
               (self._source_id, self._received_sps_count))

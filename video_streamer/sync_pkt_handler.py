@@ -4,11 +4,12 @@ import socketserver
 import struct
 import threading
 
+import x2_pb2
+
 import constants
 import process
 import rtp_pkt_decoder
 import server
-from frame_reader import x2_pb2
 
 
 def _parse_timestamp(rtp_pkt):
@@ -76,41 +77,45 @@ class SyncPacketHandler(socketserver.StreamRequestHandler):
         # we use python socket timeout mechanism for server side detection
         self.connection.settimeout(self._heartbeat_interval)
 
-        self._rtp_pkt_queue = multiprocessing.Queue(maxsize=self.server.rtp_pkt_queue_size)
+        self._log_queue = multiprocessing.Queue(maxsize=self.server.sync_pkt_queue_size)
 
-        # self._rtp_pkt_decode_server_process = process.ServerProcess(
-        #     "RTP packet decode process (for client source id #%d)" % self._source_id,
-        #     server.rtp_pkt_decode_server_creator,
-        #     self.server.stat_queue,
-        #     self._rtp_pkt_queue,
-        #     self.server.frame_queue,
-        #     rtp_pkt_decoder.RTPPacketSimpleDecoder,
-        #     self._source_id)
-        #
-        # ret = self._rtp_pkt_decode_server_process.start()
-        # if ret:
-        #     print("%s is running" % self._rtp_pkt_decode_server_process.name())
-
-        self._rtp_pkt_log_server_process = process.ServerProcess(
-            "RTP packet logging process (for client source id #%d)" % self._source_id,
-            server.rtp_pkt_log_server_creator,
+        self._sync_pkt_log_server_process = process.ServerProcess(
+            "synchronized packet logging process (for client source id #%d)" % self._source_id,
+            server.sync_pkt_logging_server_creator,
             self.server.stat_queue,
-            self._rtp_pkt_queue,
+            self._log_queue,
             rtp_pkt_decoder.RTPPacketSimpleDecoder,
             self._source_id)
 
-        ret = self._rtp_pkt_log_server_process.start()
+        ret = self._sync_pkt_log_server_process.start()
         if ret:
-            print("%s is running" % self._rtp_pkt_log_server_process.name())
+            print("%s is running" % self._sync_pkt_log_server_process.name())
+
+        self._dump_queue = multiprocessing.Queue(maxsize=self.server.sync_pkt_queue_size)
+
+        self._sync_pkt_dump_server_process = process.ServerProcess(
+            "synchronized packet dump process (for client source id #%d)" % self._source_id,
+            server.sync_pkt_dump_server_creator,
+            self.server.stat_queue,
+            self._dump_queue,
+            self._source_id)
+
+        ret = self._sync_pkt_dump_server_process.start()
+        if ret:
+            print("%s is running" % self._sync_pkt_dump_server_process.name())
 
     def finish(self):
         super(SyncPacketHandler, self).finish()
-        self._rtp_pkt_queue.close()  # will flush
-        # self._rtp_pkt_decode_server_process.stop()
-        self._rtp_pkt_log_server_process.stop()
+        # will flush queue
+        self._log_queue.close()
+        self._dump_queue.close()
+        # stop server process
+        self._sync_pkt_log_server_process.stop()
+        self._sync_pkt_dump_server_process.stop()
+        # stop heartbeat
         if self._heartbeat_timer is not None:
             self._heartbeat_timer.cancel()
-        print("RTP packet handle server (for client source id #%d) exits" % self._source_id)
+        print("synchronized packet handle server (for client source id #%d) exits" % self._source_id)
 
     def handle(self):
         try:
@@ -172,10 +177,19 @@ class SyncPacketHandler(socketserver.StreamRequestHandler):
             print("invalid synchronized packet received: %s" % str(e))
             return
 
+        self._received_count += 1
+
         while True:
             try:
-                self._rtp_pkt_queue.put((meta_frame, timestamp_rtp, rtp_pkt_buff), timeout=1)
-                self._received_count += 1
+                self._log_queue.put((meta_frame, timestamp_rtp, rtp_pkt_buff), timeout=1)
                 break
             except multiprocessing.queues.Full:
-                print("WARN: rtp packet handle server is slow, input RTP packet is rejected due to busy, retry")
+                print("WARN: logging server is slow, "
+                      "input RTP packet and metadata frame are rejected due to busy, retry")
+        while True:
+            try:
+                self._dump_queue.put((meta_frame, timestamp_rtp, rtp_pkt_buff), timeout=1)
+                break
+            except multiprocessing.queues.Full:
+                print("WARN: dump server is slow, "
+                      "input RTP packet and metadata frame are rejected due to busy, retry")
