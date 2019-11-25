@@ -42,8 +42,12 @@ class FrameHoBotX2SDKReader(frame_reader.FrameReader):
             while True:
                 ret, meta_frame_timestamp, meta_frame_buff = self._sdk.read_smart_frame_with_id()
                 if 0 == ret:
-                    if meta_frame_timestamp < 0:
-                        raise Exception("invalid smart frame, timestamp id = %d" % meta_frame_timestamp)
+                    if meta_frame_timestamp < 0 or meta_frame_timestamp > 65535:
+                        print("invalid timestamp of metadata frame received: %d, ignored" % meta_frame_timestamp)
+                        continue
+                    if len(meta_frame_buff) == 0:
+                        print("empty metadata frame received, ignored")
+                        continue
                     break
                 elif -7 == ret or -10 == ret:  # the connection between CP and AP is broken
                     try:
@@ -56,7 +60,7 @@ class FrameHoBotX2SDKReader(frame_reader.FrameReader):
                 else:
                     raise Exception("retcode = %d" % ret)
         except Exception as e:
-            print("failed to read smart frame from the SDK interface (read_smart_frame_with_id): %s" % str(e))
+            print("failed to read metadata frame from the SDK interface (read_smart_frame_with_id): %s" % str(e))
             return False, -1, None
 
         return True, meta_frame_timestamp, meta_frame_buff
