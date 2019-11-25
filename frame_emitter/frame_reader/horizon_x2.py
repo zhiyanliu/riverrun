@@ -11,8 +11,8 @@ class FrameHoBotX2SDKReader(frame_reader.FrameReader):
 
     def _init_sdk(self):
         try:
-            print("initializing hobotx2 SDK (hobotx2.so) interface")
-            import hobotx2  # hobotx2.so
+            print("initializing hobotx2 SDK interface")
+            from frame_reader import hobotx2  # hobotx2.so
             self._sdk = hobotx2
             ret = self._sdk.init_smart()
             if 0 != ret:
@@ -27,7 +27,7 @@ class FrameHoBotX2SDKReader(frame_reader.FrameReader):
         if self._sdk is None:
             return
         try:
-            print("destroy hobotx2 SDK (hobotx2.so) interface")
+            print("destroy hobotx2 SDK interface")
             ret = self._sdk.deinit_smart()
             if 0 != ret:
                 raise Exception("retcode = %d" % ret)
@@ -72,13 +72,17 @@ class FrameHoBotX2SDKReader(frame_reader.FrameReader):
 
 class FrameHoBotX2NoneReader(frame_reader.FrameReader):
     def __init__(self):
-        import x2_pb2
-        self._frame_class = x2_pb2.FrameMessage
+        from frame_reader import x2_pb2
+        self._frame_module = x2_pb2
         print("hobotx2 NONE frame reader created, pid = %d" % os.getpid())
 
     def read(self):
-        meta_frame = self._frame_class()
-        return meta_frame.SerializeToString(), meta_frame.smart_msg_.timestamp_
+        meta_frame = self._frame_module.FrameMessage()
+        # fake data to prevent empty serialized string
+        meta_frame.capture_msg_.targets_.append(self._frame_module.CaptureTarget())
+        meta_frame.capture_msg_.targets_[0].captures_.append(self._frame_module.Capture())
+        meta_frame.capture_msg_.targets_[0].captures_[0].timestamp_ = 0
+        return True, meta_frame.smart_msg_.timestamp_, meta_frame.SerializeToString()
 
     def release(self):
         print("hobotx2 NONE frame reader released, pid = %d" % os.getpid())

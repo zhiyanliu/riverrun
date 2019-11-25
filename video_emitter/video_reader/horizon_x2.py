@@ -12,8 +12,8 @@ class VideoPacketHoBotX2SDKReader(video_reader.VideoPacketReader):
 
     def _init_sdk(self):
         try:
-            print("initializing hobotx2 SDK (hobotx2.so) interface")
-            import hobotx2  # hobotx2.so
+            print("initializing hobotx2 SDK interface")
+            from video_reader import hobotx2  # hobotx2.so
             self._sdk = hobotx2
             ret = self._sdk.init_video(self._filename)
             if 0 != ret:
@@ -28,7 +28,7 @@ class VideoPacketHoBotX2SDKReader(video_reader.VideoPacketReader):
         if self._sdk is None:
             return
         try:
-            print("destroy hobotx2 SDK (hobotx2.so) interface")
+            print("destroy hobotx2 SDK interface")
             ret = self._sdk.deinit_video()
             if 0 != ret:
                 raise Exception("retcode = %d" % ret)

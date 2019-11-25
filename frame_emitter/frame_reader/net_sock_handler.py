@@ -10,8 +10,8 @@ class FrameNetSocketHandler(socketserver.StreamRequestHandler):
         self._log_timer.start()
 
     def _log_routine(self):
-        # log latest received timestamp of metadata frame
-        print("latest received timestamp of metadata frame: %d" % self._latest_timestamp)
+        # log latest read metadata frame timestamp
+        print("latest read metadata frame timestamp: %d" % self._latest_timestamp)
         self._start_log_routine()
 
     def _set_keepalive(self, after_idle_sec=60, interval_sec=60, max_fails=10):
@@ -30,7 +30,7 @@ class FrameNetSocketHandler(socketserver.StreamRequestHandler):
         self._set_keepalive(after_idle_sec=30)
         self.connection.settimeout(30)  # seconds
 
-        # log latest received timestamp of metadata frame
+        # latest read metadata frame timestamp
         self._latest_timestamp = -1
         self._start_log_routine()
 

@@ -45,9 +45,12 @@ def server_loop():
             if not ret:
                 continue
 
-            _latest_read_count += 1
-            # send the metadata frame data to the process server
-            emitter.emit(meta_frame_timestamp, meta_frame_buff)
+            if len(meta_frame_buff) > 0:
+                _latest_read_count += 1
+                # send the metadata frame data to the process server
+                emitter.emit(meta_frame_timestamp, meta_frame_buff)
+            else:
+                print("WARN: read an emtpy metadata frame, ignored")
     finally:
         if reader is not None:
             try:

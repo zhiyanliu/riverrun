@@ -13,8 +13,6 @@ class SyncPacketTCPSender:
         self.ip = ip
         self.port = port
         self._connected = False
-        if not self._connected:
-            self._connect()
         print("synchronized packet TCP sender created, pid = %d, target = %s:%d" % (os.getpid(), self.ip, self.port))
 
     def _start_heartbeat_read_routine(self):
