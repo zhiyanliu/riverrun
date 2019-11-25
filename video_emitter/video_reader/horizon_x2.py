@@ -43,6 +43,10 @@ class VideoPacketHoBotX2SDKReader(video_reader.VideoPacketReader):
             while True:
                 ret, rtp_pkt = self._sdk.read_video_stream()
                 if 0 == ret:
+                    if len(rtp_pkt) == 0:
+                        # FIXME(production): SDK's block-IO interface shouldn't return an empty RTP packet
+                        print("empty video packet received, ignored")
+                        continue
                     break
                 elif -32 == ret:  # the connection between CP and AP is broken
                     try:

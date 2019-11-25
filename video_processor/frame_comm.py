@@ -29,7 +29,7 @@ def create_taker():
 
     if taker is None:
         print("Invalid environment variables provided for video processor")
-        print("Variable %s must be %s or %s, exit" %
+        print("Variable %s must be %s or %s, exits" %
               (constants.METADATA_FRAME_TAKE_TYPE_ENV_VAR_NAME, constants.METADATA_FRAME_TAKE_TYPE_RESPONSE,
                constants.METADATA_FRAME_TAKE_TYPE_SUBSCRIBE))
     return taker

@@ -36,7 +36,7 @@ def create_taker():
 
     if taker is None:
         print("Invalid environment variables provided for video processor")
-        print("Variable %s must be %s %s or %s, exit" %
+        print("Variable %s must be %s %s or %s, exits" %
               (constants.VIDEO_STREAM_TAKE_TYPE_ENV_VAR_NAME, constants.VIDEO_STREAM_TAKE_TYPE_UDP,
                constants.VIDEO_STREAM_TAKE_TYPE_RESPONSE, constants.VIDEO_STREAM_TAKE_TYPE_SUBSCRIBE))
     return taker

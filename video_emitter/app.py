@@ -66,8 +66,7 @@ def server_loop():
                 # send the video RTP packet to the process server
                 emitter.emit(rtp_pkt)
             else:
-                # FIXME(production): SDK's read_video_stream() block-IO interface shouldn't return empty RTP packet
-                print("WARN: read an emtpy RTP packet from SDK, ignored")
+                print("WARN: read an emtpy RTP packet, ignored")
     finally:
         if reader is not None:
             try:
