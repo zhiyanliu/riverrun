@@ -4,12 +4,13 @@ import socketserver
 import struct
 import threading
 
-import x2_pb2
+import google.protobuf.message
 
 import constants
 import process
 import rtp_pkt_decoder
 import server
+import x2_pb2
 
 
 def _parse_timestamp(rtp_pkt):
@@ -155,24 +156,26 @@ class SyncPacketHandler(socketserver.StreamRequestHandler):
             if not ret:
                 raise Exception("failed to parse RTP packet")
 
-            meta_frame = x2_pb2.FrameMessage()
+            if meta_frame_buff is not None:  # do not verify empty "drop" metadata frame
+                try:
+                    meta_frame = x2_pb2.FrameMessage()
+                    meta_frame.ParseFromString(meta_frame_buff)
+                    if meta_frame.smart_msg_ is None or meta_frame.smart_msg_.timestamp_ is None:
+                        raise Exception("smart message or timestamp in metadata frame is empty")
 
-            if meta_frame_buff is None:
-                # generate an empty "drop" metadata frame
-                meta_frame.smart_msg_.timestamp_ = timestamp_rtp
-            else:
-                meta_frame.ParseFromString(meta_frame_buff)
-                if meta_frame.smart_msg_ is None or meta_frame.smart_msg_.timestamp_ is None:
-                    raise Exception("smart message or timestamp in metadata frame is empty")
+                    timestamp_fm = meta_frame.smart_msg_.timestamp_
 
-                timestamp_fm = meta_frame.smart_msg_.timestamp_
+                    if (timestamp_fm > 0 and  # RTP packet synchronized with a valid metadata frame
+                            timestamp_fm != timestamp_rtp):
+                        print("BUG: invalid synchronized packet received: the RTP packet timestamp"
+                              "is not equal to the metadata frame timestamp (%d != %d), "
+                              "it seems like a BUG in client implementation, the packet ignored" %
+                              (timestamp_fm, timestamp_rtp))
+                except google.protobuf.message.DecodeError:
+                    # ignore parsing message error
+                    # it may caused by client is using own metadata frame format instead of Horizon's
+                    pass
 
-                if (timestamp_fm > 0 and  # RTP packet synchronized with a valid metadata frame
-                        timestamp_fm != timestamp_rtp):
-                    print("BUG: invalid synchronized packet received: the RTP packet timestamp"
-                          "is not equal to the metadata frame timestamp (%d != %d), "
-                          "it seems like a BUG in client implementation, the packet ignored" %
-                          (timestamp_fm, timestamp_rtp))
         except Exception as e:
             print("invalid synchronized packet received: %s" % str(e))
             return
@@ -181,14 +184,14 @@ class SyncPacketHandler(socketserver.StreamRequestHandler):
 
         while True:
             try:
-                self._log_queue.put((meta_frame, timestamp_rtp, rtp_pkt_buff), timeout=1)
+                self._log_queue.put((meta_frame_buff, timestamp_rtp, rtp_pkt_buff), timeout=1)
                 break
             except multiprocessing.queues.Full:
                 print("WARN: logging server is slow, "
                       "input RTP packet and metadata frame are rejected due to busy, retry")
         while True:
             try:
-                self._dump_queue.put((meta_frame, timestamp_rtp, rtp_pkt_buff), timeout=1)
+                self._dump_queue.put((meta_frame_buff, timestamp_rtp, rtp_pkt_buff), timeout=1)
                 break
             except multiprocessing.queues.Full:
                 print("WARN: dump server is slow, "

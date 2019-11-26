@@ -41,16 +41,15 @@ class DumpServer(base_server.Server):
         while True:
             try:
                 while not self._stop_flag.is_set():
-                    meta_frame, timestamp_rtp, rtp_pkt = self._sync_pkt_queue.get(timeout=1)
-                    self._dump_meta_frame_in_net_sock_format(timestamp_rtp, meta_frame)
+                    meta_frame_buff, timestamp_rtp, rtp_pkt = self._sync_pkt_queue.get(timeout=1)
+                    self._dump_meta_frame_in_net_sock_format(timestamp_rtp, meta_frame_buff)
                     self._dump_rtp_pkt_in_net_sock_format(rtp_pkt)
 
                 break  # server stopped
             except multiprocessing.queues.Empty:
                 pass  # ignore safely
 
-    def _dump_meta_frame_in_net_sock_format(self, timestamp, meta_frame):
-        meta_frame_buff = meta_frame.SerializeToString()
+    def _dump_meta_frame_in_net_sock_format(self, timestamp, meta_frame_buff):
         meta_frame_buff_len = len(meta_frame_buff)
 
         buff = struct.pack(

@@ -5,33 +5,27 @@ import base_server
 
 
 class LoggingServer(base_server.Server):
-    def __init__(self, name, stat_queue, sync_pkt_queue, decoder_class, source_id):
+    def __init__(self, name, stat_queue, sync_pkt_queue, rtp_pkt_decoder_class, source_id):
         super(LoggingServer, self).__init__(name, stat_queue)
         if sync_pkt_queue is None:
             raise Exception("synchronized packet queue is None")
-        if decoder_class is None:
+        if rtp_pkt_decoder_class is None:
             raise Exception("RTP packet decoder class is None")
         self._sync_pkt_queue = sync_pkt_queue
         self._source_id = source_id
-        self._decoder = decoder_class(self._source_id)
+        self._rtp_pkt_decoder = rtp_pkt_decoder_class(self._source_id)
         # logging indicator
         self._received_sync_pkt_count = 0
-        self._latest_received_rtp_pkt = None
         self._latest_received_rtp_timestamp = None
-        self._latest_received_meta_frame = None
 
     def _log_routine(self):
-        if self._latest_received_rtp_pkt is not None and self._latest_received_meta_frame is not None:
+        if self._latest_received_rtp_timestamp is not None:
             print("the number of received RTP packet from the source #%d in last 5 seconds: %d" %
                   (self._source_id, self._received_sync_pkt_count))
-            print("latest RTP packet length = %d, timestamp = %d, metadata frame timestamp = %d" %
-                  (len(self._latest_received_rtp_pkt), self._latest_received_rtp_timestamp,
-                   self._latest_received_meta_frame.smart_msg_.timestamp_))
+            print("latest received timestamp of synchronized packet: %d" % self._latest_received_rtp_timestamp)
             # reset logging indicator
             self._received_sync_pkt_count = 0
-            self._latest_received_rtp_pkt = None
             self._latest_received_rtp_timestamp = None
-            self._latest_received_meta_frame = None
 
         self._start_log_routine()
 
@@ -39,12 +33,10 @@ class LoggingServer(base_server.Server):
         while True:
             try:
                 while not self._stop_flag.is_set():
-                    self._latest_received_meta_frame,\
-                        self._latest_received_rtp_timestamp,\
-                        self._latest_received_rtp_pkt = self._sync_pkt_queue.get(timeout=1)
-                    self._received_sync_pkt_count += 1
+                    _, self._latest_received_rtp_timestamp, rtp_pkt = self._sync_pkt_queue.get(timeout=1)
 
-                    self._decoder.put(self._latest_received_rtp_pkt)
+                    self._received_sync_pkt_count += 1
+                    self._rtp_pkt_decoder.put(rtp_pkt)
 
                 break  # server stopped
             except multiprocessing.queues.Empty:
@@ -52,8 +44,6 @@ class LoggingServer(base_server.Server):
 
     def release(self):
         super(LoggingServer, self).release()
-        if self._decoder is None:
-            return  # to prevent re-entry
-
-        self._decoder.release()
-        self._decoder = None
+        if self._rtp_pkt_decoder is not None:  # to prevent re-entry
+            self._rtp_pkt_decoder.release()
+            self._rtp_pkt_decoder = None
