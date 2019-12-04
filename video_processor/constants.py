@@ -130,7 +130,7 @@ def get_sync_pkt_policy_queue_size(default_queue_size=15):
     return queue_size
 
 
-def get_sync_pkt_policy_whether_send_meta_frame_once(default_whether=False):
+def get_sync_pkt_policy_whether_send_meta_frame_once(default_whether=True):
     os.environ.setdefault(SYNC_PACKET_POLICY_SEND_METADATA_FRAME_ONCE_ENV_VAR_NAME, "1" if default_whether else "0")
     if os.environ[SYNC_PACKET_POLICY_SEND_METADATA_FRAME_ONCE_ENV_VAR_NAME].strip().lower() in _positive_terms:
         return True
