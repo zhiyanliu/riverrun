@@ -118,6 +118,10 @@ This project does not work for you if:
     |-------------|------------------|------------------|----------------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
     |`Volume`     |`/dev/shm/foo_30M`|`/dev/shm/foo_30M`|`VideoEmitter`              |Automatically add OS group permissions of the Linux group that owns the resource.|The file name in the path needs to match to the setting of the option `VIDEO_RTP_PACKET_SHM_FILENAME` of function `VideoEmitter`.|
 
+    >> **Note:**
+    >>
+    >> This local resource configuration is needed only when you are setting option `VIDEO_RTP_PACKET_INPUT_TYPE` to value `HORIZON_SDK` for function `VideoEmitter`. 
+
 ### Dependencies on edge device
 
 - ``sudo apt-get update``
