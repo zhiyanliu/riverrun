@@ -37,7 +37,7 @@ This project does not work for you if:
 * You would not like to use AWS Serverless Application Model (SAM) to organize your software architecture.
 * You would not like to involve Python lang to your technical stack.
 * You do not have a credential to access WW (non-China) AWS region.
-* Your AWS account user has not right to fully access Amazon S3 and AWS Lambda services.
+* Your AWS account user has not right to fully access Amazon S3, AWS Lambda and AWS CloudFormation services.
 * You do not have a host runs MacOS, Ubuntu or Windows system, to install and run AWS SAM CLI.
 
 >>**Preferred software version:**
