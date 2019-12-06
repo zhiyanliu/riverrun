@@ -49,9 +49,18 @@ This project does not work for you if:
 1. ``git clone git@git.awsrun.com:rp/riverrun.git``
 2. ``cd riverrun``
 3. Create a S3 bucket to save Lambda function package. E.g. using AWS CLI: ``aws s3 mb s3://<YOUR S3 BUCKET NAME>``
-4. ``sam build --template template.yaml --build-dir pkg/build``
-5. ``sam package --template-file pkg/build/template.yaml --output-template-file pkg/build/packaged-template.yaml --s3-bucket <YOUR S3 BUCKET NAME>``
-6. ``sam deploy --template-file pkg/build/packaged-template.yaml --stack-name --capabilities CAPABILITY_IAM <YOUR STACK NAME>``
+4. **When using Horizon SDK to receive video streaming and structuring data only:** Hot-fix AWS SAM CLI to include `so` file in the Lambda function package before the [issue](https://github.com/awslabs/aws-sam-cli/issues/1360) is fixed, because Horizon SDK is released as a `hobotx2.so` file.
+   - Open your local SAM CLI file ``aws_lambda_builders/workflows/python_pip/workflow.py``. For example, `brew` installed this file at `/usr/local/Cellar/aws-sam-cli/0.34.0/libexec/lib/python3.7/site-packages/aws_lambda_builders/workflows/python_pip/workflow.py` on my Mac. Also, online version at [here](``https://github.com/awslabs/aws-lambda-builders/blob/develop/aws_lambda_builders/workflows/python_pip/workflow.py#L27``).
+   - Located to line #27, this code line is ``"*.pyc", "__pycache__", "*.so",``.
+   - Replace this code line to ``"*.pyc", "__pycache__",``.
+5. ``sam build --template template.yaml --build-dir pkg/build``
+6. ``sam package --template-file pkg/build/template.yaml --output-template-file pkg/build/packaged-template.yaml --s3-bucket <YOUR S3 BUCKET NAME>``
+7. ``sam deploy --template-file pkg/build/packaged-template.yaml --stack-name --capabilities CAPABILITY_IAM <YOUR STACK NAME>``
+
+>> **Note:**
+>>
+>> - If you are using Windows system, you need to update the path in above `sam` commands to use Windows style path separator.
+>> - You need not to execute above step \#4 when you intend to use socket API to receive video streaming and structuring data instead of using Horizon SDK.
 
 ## How to config
 
