@@ -69,3 +69,4 @@ class ServerProcess:
                 time.sleep(0.2)
             self._pid.join()
             self._pid.close()
+            self._pid = None
