@@ -3,12 +3,12 @@
 This is the code repository of an agent to transform and synchronize video streaming data and video structuring data running on [edge device](https://en.wikipedia.org/wiki/Edge_computing).
 The code name of this component is [Riverrun](https://gameofthrones.fandom.com/wiki/Riverrun).
 
-This agent includes four correlative serverless applications build in [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/), each one is developed as a [AWS Lambda](https://aws.amazon.com/lambda/) [Function](http://git.awsrun.com/rp/riverrun/blob/master/template.yaml) by Python (python3.7 runtime).
+This agent includes four correlative serverless applications build in [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/), each one is developed as a [AWS Lambda](https://aws.amazon.com/lambda/) [Function](https://github.com/zhiyanliu/riverrun/blob/master/template.yaml) by Python (python3.7 runtime).
 
 These applications can be deployed together on the same edge device or be distributed to the different device as deployment architecture needs, e.g. deployment on limited hardware resources or affect by the division of device capability.
 They also can be fully or partially deployed based on customer's requirement.
 
-The performance of this project has been tuned for resource-limited hardware as well, it has been deployed on [Dragonboard 410c](https://developer.qualcomm.com/hardware/dragonboard-410c) by [AWS IoT Greengrass](https://aws.amazon.com/greengrass/) service in a real customer case ([Horizon](https://en.horizon.ai/programme/4)).
+The performance of this project has been tuned for resource-limited hardware as well, it has been deployed on [Dragonboard 410c](https://developer.qualcomm.com/hardware/dragonboard-410c) by [AWS IoT Greengrass](https://aws.amazon.com/greengrass/) service in a real customer case.
 
 Mainly, and currently, Riverrun provides four functions:
 
@@ -17,15 +17,15 @@ Mainly, and currently, Riverrun provides four functions:
 3. `VideoProcessor`: Video streaming data and structuring data transform and synchronize. Support two synchronization policies according to the video structuring QoS, and structuring data throttling based on hardware resource limit to reduce video streaming delay.
 4. `VideoStreamer`: Decoding video streaming and structuring data to log and dump H.264 packets, used for functional and performance testing or additional data handling in future.
 
-## Why [we](mailto:awscn-sa-prototyping@amazon.com) develop it
+## Why develop it
 
 The data transformation and synchronization for video streaming and structuring data on edge device is a common requirement in modern computer vision related project. Currently our SA and developer needs to implement, test and tuning such similar functions for different project, and beside the duplicated workload, in most time the deliverable is not easy to develop quickly especially in the scenario about streaming data handling on resource-limited hardware.
 
-To easy the developer and our SA to deliver this kind of project, we generalized and polished our video streaming data and structuring data transformation and synchronization project to make it for common usage, to accelerate the PoC, prototyping case delivery.
+To easy the developer and our SA to deliver this kind of project, I generalized and polished our video streaming data and structuring data transformation and synchronization project to make it for common usage, to accelerate the PoC, prototyping case delivery.
 
 >> **Note:**
 >>
->> This project is truly under continuative develop stage, we'd like to collect the feedback and include the enhancement in follow-up release to share them with all users.
+>> This project is truly under continuative develop stage, I'd like to collect the feedback and include the enhancement in follow-up release to share them with all users.
 >>
 >> **DISCLAIMER: This project is NOT intended for a production environment, and USE AT OWN RISK!**
 
@@ -147,5 +147,5 @@ This project does not work for you if:
 
 ## Contributor
 
-* Zhi Yan Liu,  [liuzhiya@amazon.com](mailto:liuzhiya@amazon.com)
+* Zhi Yan Liu, [liuzhiya@amazon.com](mailto:liuzhiya@amazon.com)
 * You. Welcome any feedback and issue report, further more, idea and code contribution are highly encouraged.
