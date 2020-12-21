@@ -46,7 +46,7 @@ This project does not work for you if:
 
 ## How to deploy
 
-1. ``git clone git@git.awsrun.com:rp/riverrun.git``
+1. ``git clone git@github.com:zhiyanliu/riverrun.git``
 2. ``cd riverrun``
 3. Create a S3 bucket to save Lambda function package. E.g. using AWS CLI: ``aws s3 mb s3://<YOUR S3 BUCKET NAME>``
 4. **When using Horizon SDK to receive video streaming and structuring data only:** Hot-fix AWS SAM CLI to include `so` file in the Lambda function package before the [issue](https://github.com/awslabs/aws-sam-cli/issues/1360) is fixed, because Horizon SDK is released as a `hobotx2.so` file.
