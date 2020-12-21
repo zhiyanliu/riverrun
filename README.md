@@ -1,7 +1,7 @@
 ## What is this
 
 This is the code repository of an agent to transform and synchronize video streaming data and video structuring data running on [edge device](https://en.wikipedia.org/wiki/Edge_computing).
-The code name of this component is [Riverrun](https://gameofthrones.fandom.com/wiki/Riverrun), which is developed by AWS Rapid Prototyping team.
+The code name of this component is [Riverrun](https://gameofthrones.fandom.com/wiki/Riverrun).
 
 This agent includes four correlative serverless applications build in [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/), each one is developed as a [AWS Lambda](https://aws.amazon.com/lambda/) [Function](http://git.awsrun.com/rp/riverrun/blob/master/template.yaml) by Python (python3.7 runtime).
 
@@ -147,5 +147,5 @@ This project does not work for you if:
 
 ## Contributor
 
-* Zhi Yan Liu, AWS Rapid Prototyping team,  [liuzhiya@amazon.com](mailto:liuzhiya@amazon.com)
+* Zhi Yan Liu,  [liuzhiya@amazon.com](mailto:liuzhiya@amazon.com)
 * You. Welcome any feedback and issue report, further more, idea and code contribution are highly encouraged.
